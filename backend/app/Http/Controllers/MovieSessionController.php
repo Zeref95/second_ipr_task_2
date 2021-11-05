@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Session;
+use App\Models\MovieSession;
 use Illuminate\Http\Request;
 
-class SessionController extends Controller
+class MovieSessionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,10 +41,10 @@ class SessionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Session  $session
+     * @param  \App\Models\MovieSession  $session
      * @return \Illuminate\Http\Response
      */
-    public function show(Session $session)
+    public function show(MovieSession $session)
     {
         //
     }
@@ -52,10 +52,10 @@ class SessionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Session  $session
+     * @param  \App\Models\MovieSession  $session
      * @return \Illuminate\Http\Response
      */
-    public function edit(Session $session)
+    public function edit(MovieSession $session)
     {
         //
     }
@@ -64,10 +64,10 @@ class SessionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Session  $session
+     * @param  \App\Models\MovieSession  $session
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Session $session)
+    public function update(Request $request, MovieSession $session)
     {
         //
     }
@@ -75,11 +75,31 @@ class SessionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Session  $session
+     * @param  \App\Models\MovieSession  $session
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Session $session)
+    public function destroy(MovieSession $session)
     {
         //
+    }
+
+    /**
+     * Return JSON template for Movies Session.
+     *
+     * @return \Illuminate\Http\Response|string
+     */
+    public static function getEmptyPlacesJson()
+    {
+        $plates = [];
+        for ($i = 0; $i < 3; $i++) {
+            for ($j = 0; $j < 7; $j++) {
+                $plates[] = [
+                    'place' => ($i*7 + $j)+1,
+                    'row' => $i+1,
+                    'status' => 'free'
+                ];
+            }
+        }
+        return json_encode($plates);
     }
 }

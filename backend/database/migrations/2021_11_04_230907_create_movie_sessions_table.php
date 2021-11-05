@@ -18,6 +18,7 @@ class CreateMovieSessionsTable extends Migration
             $table->bigInteger('city_id');
             $table->bigInteger('movie_id');
             $table->date('date');
+            $table->time('time');
             $table->json('plates');
             $table->timestamps();
         });
