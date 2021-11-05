@@ -28,7 +28,11 @@
     </p>
     <p><b>Method:</b> GET</p>
 
-    <p><b>Answer: </b> <code>['Rostov', 'Taganrog']</code></p>
+    <p>
+        <b>Example: </b> <code>{{config('app.url')}}/api/v1/cities</code>
+        <br>
+        <b>Answer: </b> <code>[{"id":1,"name":"Taganrog"},{"id":2,"name":"Rostov"}]</code>
+    </p>
 </div>
 
 <div class="block">
@@ -36,16 +40,26 @@
 
     <p>
         <code>
-            {{config('app.url')}}/api/v1/movies/${city}
+            {{config('app.url')}}/api/v1/movies?city_id=${city_id}
+        </code>
+    </p>
+    <p>
+        <code>
+            {{config('app.url')}}/api/v1/movies?city_id=${city_id}&date=${date}
         </code>
     </p>
     <p><b>Method:</b> GET</p>
-    <p><b>Where:</b>
-    <ul></p>
-        <li><code>${city}</code> - Name of city, like <code>Rostov</code></li>
+    <p><b>Where:</b></p>
+    <ul>
+        <li><code>${city_id}</code> - Id of city, like <code>1</code></li>
+        <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
     </ul>
 
-    <p><b>Answer: </b> <code>[{списка фильмов на сегодня и завтра}]</code></p>
+    <p>
+        <b>Example: </b> <code>{{config('app.url')}}/api/v1/movies?city_id=1&date=2021-11-05</code>
+        <br>
+        <b>Answer: </b> <code>Список фильмов</code>
+    </p>
 </div>
 
 <div class="block">
@@ -53,13 +67,14 @@
 
     <p>
         <code>
-            {{config('app.url')}}/api/v1/movie-info/&{movie_id}
+            {{config('app.url')}}/api/v1/movie-info/${movie_id}/${date}
         </code>
     </p>
     <p><b>Method:</b> GET</p>
     <p><b>Where:</b></p>
     <ul>
         <li><code>${movie_id}</code> - Move ID, like <code>5</code></li>
+        <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
     </ul>
 
     <p><b>Answer: </b> <code>{Возможные сеансы и места}</code></p>
@@ -73,7 +88,7 @@
             {{config('app.url')}}/api/v1/order
         </code>
     </p>
-    <p><b>Method:</b> PUT</p>
+    <p><b>Method:</b> POST</p>
     <p><b>Body:</b></p>
     <ul>
         <li><code>session_id</code> - Session ID, like <code>5</code></li>

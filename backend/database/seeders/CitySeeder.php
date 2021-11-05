@@ -14,7 +14,7 @@ class CitySeeder extends Seeder
      */
     public function run()
     {
-        $cityList = ['Taganrog', 'Rosrov'];
+        $cityList = ['Taganrog', 'Rostov'];
         foreach ($cityList as $cityName) {
             City::firstOrCreate([
                 'name' => $cityName
