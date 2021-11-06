@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('auth.apikey')->group(function () {
     Route::get('/cities', [CityController::class, 'index']);
     Route::get('/movies', [MovieController::class, 'index']);
     Route::get('/movie-session', [MovieSessionController::class, 'index']);
