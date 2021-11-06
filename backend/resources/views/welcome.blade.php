@@ -6,12 +6,16 @@
     <title>Documentation</title>
     <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}">
     <style>
+        h1 {
+            text-align: center;
+        }
         h2 {
             color: #336dc3;
         }
         .block {
             background-color: #ececec;
             margin-top: 50px;
+            padding-left: 15px;
         }
     </style>
 </head>

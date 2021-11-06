@@ -18,6 +18,8 @@ class CreateMoviesTable extends Migration
             $table->string('title');
             $table->text('description');
             $table->string('poster');
+            $table->date('rental_start');
+            $table->date('rental_end');
             $table->timestamps();
         });
     }
