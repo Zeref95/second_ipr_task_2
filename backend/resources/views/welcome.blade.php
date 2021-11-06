@@ -17,6 +17,11 @@
             margin-top: 50px;
             padding-left: 15px;
         }
+        .code {
+            font-size: .875em;
+            color: #d63384;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -62,16 +67,25 @@
     <p>
         <b>Example: </b> <code>{{config('app.url')}}/api/v1/movies?city_id=1&date=2021-11-05</code>
         <br>
-        <b>Answer: </b> <code>Список фильмов</code>
+        <b>Answer: </b>
+            <pre class="code">
+        [{
+                "id": 7,
+                "title": "Молоко",
+                "description": "Жителей города Кировска давно не удивить...",
+                "poster": "storage/posters/7.jpg",
+        }]
+        </pre>
+
     </p>
 </div>
 
 <div class="block">
-    <h2>Get movie info</h2>
+    <h2>Get movie session</h2>
 
     <p>
         <code>
-            {{config('app.url')}}/api/v1/movie-info/${movie_id}/${date}
+            {{config('app.url')}}/api/v1/movie-session?movie_id=&{move_id}&date=${date}
         </code>
     </p>
     <p><b>Method:</b> GET</p>
@@ -81,7 +95,33 @@
         <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
     </ul>
 
-    <p><b>Answer: </b> <code>{Возможные сеансы и места}</code></p>
+    <p>
+        <b>Example: </b> <code>{{config('app.url')}}/api/v1/movie-session?movie_id=7&date=2021-11-05</code>
+        <br>
+        <b>Answer: </b>
+    <pre class="code">
+        [{
+            "id": 8,
+            "movie_id": 7,
+            "city_id": 1,
+            "date": "2021-11-06",
+            "time": "12:20:00",
+            "plates": [
+                {
+                    "row": 1,
+                    "place": 1,
+                    "status": "free"
+                },
+                {
+                    "row": 1,
+                    "place": 2,
+                    "status": "taken"
+                },
+            ]
+        }]
+        </pre>
+
+    </p>
 </div>
 
 <div class="block">

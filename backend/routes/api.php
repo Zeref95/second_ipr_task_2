@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\MovieController;
+
+
+use App\Http\Controllers\MovieSessionController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,4 +22,6 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/cities', [CityController::class, 'index']);
     Route::get('/movies', [MovieController::class, 'index']);
+    Route::get('/movie-session', [MovieSessionController::class, 'index']);
+    Route::post('/order', [OrderController::class, 'store']);
 });
