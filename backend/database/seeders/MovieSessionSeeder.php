@@ -14,6 +14,6 @@ class MovieSessionSeeder extends Seeder
      */
     public function run()
     {
-        MovieSession::factory()->count(10)->create();
+        MovieSession::factory()->count(20)->create();
     }
 }

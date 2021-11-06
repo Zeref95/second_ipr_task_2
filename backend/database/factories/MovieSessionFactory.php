@@ -20,7 +20,6 @@ class MovieSessionFactory extends Factory
      */
     public function definition()
     {
-        $countDays = 5;
         $timeList = [
             '09:30',
             '11:30',
@@ -29,12 +28,11 @@ class MovieSessionFactory extends Factory
             '19:20',
             '22:00'
         ];
-
+        $movie = Movie::all()->random();
         return [
             'city_id' => City::all()->random()->id,
-            'movie_id' => Movie::all()->random()->id,
-            'date' =>  Carbon::now()
-                ->addDays(rand(0,$countDays)),
+            'movie_id' => $movie->id,
+            'date' =>  $this->faker->dateTimeBetween($movie->rental_start, $movie->rental_end),
             'time' => $timeList[array_rand($timeList, 1)],
             'plates' => MovieSessionController::getEmptyPlacesJson(),
         ];

@@ -29,9 +29,11 @@ class MovieController extends Controller
         }
         $validated = $validator->validated();
 
-
-        $movies = Movie::whereDate('rental_start', '<=', $validated['date'] ?? Carbon::today()->toDateString())
-            ->whereDate('rental_end', '>=', $validated['date'] ?? Carbon::tomorrow()->toDateString())
+        $date_start = $validated['date'] ?? Carbon::today()->toDateString();
+        $date_end = $validated['date'] ?? Carbon::tomorrow()->toDateString();
+        $movies = Movie::whereHas('movie_session', function ($query) use ($date_start, $date_end) {
+                $query->whereBetween('date', [$date_start, $date_end]);
+            })
             ->get();
 
         return response()->json(MovieResource::collection($movies), 200);
