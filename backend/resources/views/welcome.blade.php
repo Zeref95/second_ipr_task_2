@@ -62,6 +62,8 @@
     <ul>
         <li><code>${city_id}</code> - Id of city, like <code>1</code></li>
         <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
+
+        <li><code>${city_name}</code> - You can specify the city name instead of the identifier, like <code>Taganrog</code></li>
     </ul>
 
     <p>
