@@ -7,8 +7,6 @@ use App\Models\City;
 use App\Models\Movie;
 use App\Models\MovieSession;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class MovieSessionFactory extends Factory
 {
@@ -34,7 +32,7 @@ class MovieSessionFactory extends Factory
             'movie_id' => $movie->id,
             'date' =>  $this->faker->dateTimeBetween($movie->rental_start, $movie->rental_end),
             'time' => $timeList[array_rand($timeList, 1)],
-            'plates' => MovieSessionController::getEmptyPlacesJson(),
+            'places' => MovieSessionController::getEmptyPlacesJson(),
         ];
     }
 }

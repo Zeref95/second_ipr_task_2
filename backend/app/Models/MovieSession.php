@@ -10,6 +10,9 @@ class MovieSession extends Model
 {
     use HasFactory;
 
+    public const FREE = 'free';
+    public const TAKEN = 'taken';
+
     protected static function newFactory()
     {
         return MovieSessionFactory::new();

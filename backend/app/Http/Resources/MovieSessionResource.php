@@ -20,7 +20,7 @@ class MovieSessionResource extends JsonResource
             'city_id' => $this->city_id,
             'date' => $this->date,
             'time' => $this->time,
-            'plates' => json_decode($this->plates)
+            'places' => json_decode($this->places)
         ];
     }
 }

@@ -106,7 +106,7 @@
             "city_id": 1,
             "date": "2021-11-06",
             "time": "12:20:00",
-            "plates": [
+            "places": [
                 {
                     "row": 1,
                     "place": 1,
@@ -133,13 +133,14 @@
         </code>
     </p>
     <p><b>Method:</b> POST</p>
-    <p><b>Body:</b></p>
+    <p><b>Where:</b></p>
     <ul>
         <li><code>session_id</code> - Session ID, like <code>5</code></li>
         <li><code>places</code> - Chosen places, like <code>[1,2,3,4,5]</code></li>
+        <li><code>is_test</code> - Not required, boolean, like <code>1</code></li>
     </ul>
 
-    <p><b>Answer: </b> <code>{успешно или ошибка}</code></p>
+    <p><b>Answer: </b> <code>{"status":"OK","message":"Order successfully created"}</code></p>
 </div>
 </body>
 </html>
