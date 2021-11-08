@@ -30,7 +30,7 @@ class MovieSessionFactory extends Factory
         return [
             'city_id' => City::all()->random()->id,
             'movie_id' => $movie->id,
-            'date' =>  $this->faker->dateTimeBetween($movie->rental_start, $movie->rental_end),
+            'date' =>  $this->faker->dateTimeBetween($movie->rental_start, $movie->rental_end)->format('Y-m-d'),
             'time' => $timeList[array_rand($timeList, 1)],
             'places' => MovieSessionController::getEmptyPlacesJson(),
         ];
