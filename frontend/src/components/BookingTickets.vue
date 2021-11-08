@@ -2,14 +2,13 @@
   <div v-if="currentStep === 1">
     <div>
       <button @click="choseTodayDate"
-              class="day-button"
-              :class="{'chosen-day': chosenDate === 'today'}"
-              ref="btnToday">
+              class="button"
+              :class="{'chosen-day': chosenDate === 'today'}">
         Today
       </button>
       <button
           @click="choseTomorrowDate"
-          class="day-button"
+          class="button"
           :class="{'chosen-day': chosenDate === 'tomorrow'}">
         Tomorrow
       </button>
@@ -20,15 +19,48 @@
     <hr>
     <div v-if="movieList.length === 0">Sorry, there is no session on this day</div>
     <div class="movie-list">
-      <div v-for="move in movieList" class="movie" @click="">
+      <div v-for="move in movieList" class="movie" @click="openMove(move.id)">
         <h3>{{ move.title }}</h3>
         <img :src="backendURL + move.poster" alt="">
       </div>
 
     </div>
   </div>
-  <div v-if="currentStep === 2">
 
+  <div v-if="currentStep === 2">
+    <button @click="goBack"
+            class="button">
+      Go back
+    </button>
+    <div class="move-info">
+      <div class="move-info-left">
+        <img :src="backendURL + selectedFilmInfo.poster" alt="">
+        <p>{{selectedFilmInfo.description}}</p>
+      </div>
+      <div class="move-info-center">
+        <div>
+          <ul>
+            <li v-for="session in selectedFilmInfo.sessions">
+              {{session.time}}
+            </li>
+          </ul>
+        </div>
+        <div>
+          <div>
+            Your chose
+          </div>
+          <div>
+            Available
+          </div>
+          <div>
+            Unavailable
+          </div>
+        </div>
+      </div>
+      <div class="move-info-right">
+        Screen
+      </div>
+    </div>
   </div>
   <div v-if="currentStep === 3">
 
@@ -62,7 +94,8 @@ export default class BookingTickets extends Vue {
   backendURL: string = 'http://127.0.0.1/'
   movieList: any = []
   inputDate: string = ''
-  chosenDate: string = 'today'
+  chosenDate: string = 'today';
+  selectedFilmInfo: any = {};
 
   created() {
     this.makeRequest('api/v1/movies', 'get', {city_name: this.city},
@@ -74,20 +107,43 @@ export default class BookingTickets extends Vue {
         });
   }
 
-  getMovieInfo(movie_id: number) {
-    this.makeRequest('api/v1/movie-session', 'get', {city_name: this.city},
-        () => {
+  openMove(movie_id: number) {
+    this.currentStep = 2;
+    let date:string = '';
+    if (this.chosenDate === 'today') {
+      date = this.dateFormatter(new Date())
+    } else if (this.chosenDate === 'tomorrow') {
+      let tempDate = new Date();
+      tempDate.setDate(tempDate.getDate()+1);
+      date = this.dateFormatter(tempDate)
+    } else {
+      date = this.inputDate;
+    }
 
+    this.selectedFilmInfo = this.movieList.find((move: any) => {
+      return move.id === movie_id;
+    })
+    this.makeRequest('api/v1/movie-session', 'get',
+        {movie_id: movie_id, date: date, city_name: this.city},
+        (moveInfo: any) => {
+          this.selectedFilmInfo.sessions = moveInfo
         });
   }
 
   dateFormatter(date: Date): string {
-    return `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate()}`;
+    return `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${("0" + date.getDate()).slice(-2)}`;
   }
 
   choseTodayDate(): void {
     this.movieList = store.state.todayMovieList;
     this.chosenDate = 'today'
+  }
+
+  goBack() {
+    if (this.currentStep === 2) {
+      this.selectedFilmInfo = {};
+      this.currentStep = 1;
+    }
   }
 
   choseTomorrowDate(): void {
@@ -135,7 +191,27 @@ export default class BookingTickets extends Vue {
   background-color: #2c3e50;
   color: white;
 }
-.day-button {
+.move-info {
+  margin-top: 10px;
+  display: flex;
+  .move-info-left {
+    min-width: 350px;
+    max-width: 30%;
+    img {
+      width: 350px;
+    }
+  }
+  .move-info-center {
+    padding: 0 10px;
+    min-width: 100px;
+    max-width: 10%;
+  }
+  .move-info-right {
+    min-width: 500px;
+    max-width: 60%;
+  }
+}
+.button {
   margin: 0 5px;
   width: 100px;
   font-size: 1.1em;
