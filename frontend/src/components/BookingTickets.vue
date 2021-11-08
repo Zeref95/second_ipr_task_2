@@ -10,7 +10,7 @@
     <hr>
     <div v-if="error">{{error}}</div>
     <div v-else>
-      <div v-for="move in todayMovieList">
+      <div v-for="move in todayMovieList" class="movie">
         {{move.title}}
         <br>
         <img :src="backendURL + move.poster" alt="">
@@ -33,19 +33,24 @@
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
+import store from '@/store'
 
 @Options({
   props: {
     city: String
+  },
+  computed: {
+    todayMovieList() {
+      return store.state.todayMovieList;
+    }
   }
 })
 export default class BookingTickets extends Vue {
   city!: string
   currentStep: number = 1
-  apiKey: string = '4T3jSHclRYM3zJrntnuwo1lFv2vBw1n3BDxkPrKyKcpdPHPwqEo5kD7tw0irp0l4'
+  apiKey: string = 'wf159ZgJerjxcbvLxghgjsH2POJ9BMGwZKvT2FtRGFKzk7aW1qdAWiWfxCep67C4'
   backendURL: string = 'http://127.0.0.1/'
   error:string = ''
-  todayMovieList:any = []
 
   created() {
     this.makeRequest('api/v1/movies', 'get', {city_name: this.city},
@@ -53,12 +58,12 @@ export default class BookingTickets extends Vue {
       if (movieList.length === 0) {
         this.error = 'There is no sessions on today and tomorrow';
       } else {
-        this.todayMovieList = movieList;
+        store.commit('setTodayMovieList', movieList);
       }
     });
   }
 
-  async makeRequest(url: string, method: string, data: object, callback: any) {
+  async makeRequest(url: string, method: string, data: any, callback: any) {
     let urlFetch: string = this.backendURL + url;
     method = method.toUpperCase();
 
@@ -68,9 +73,9 @@ export default class BookingTickets extends Vue {
         if (data.hasOwnProperty(dataKey)) {
           if (!first)
             first = false;
-          urlFetch += `?${dataKey}=${data[dataKey]}`
+            urlFetch += `?${dataKey}=${data[dataKey]}`
         } else {
-          urlFetch += `&${dataKey}=${data[dataKey]}`
+            urlFetch += `&${dataKey}=${data[dataKey]}`
         }
       }
     }
@@ -96,5 +101,8 @@ export default class BookingTickets extends Vue {
 <style scoped lang="scss">
   img {
     width: 150px;
+  }
+  .movie {
+    cursor: pointer;
   }
 </style>
