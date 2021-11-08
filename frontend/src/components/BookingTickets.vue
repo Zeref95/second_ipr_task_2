@@ -1,8 +1,9 @@
 <template>
   <div v-if="currentStep === 1">
     <div>
-      Today
-      Tomorrow
+      <button @click="choseTodayDate">Today</button>
+      <button @click="choseTomorrowDate">Tomorrow</button>
+
       Or chose a day
       <input type="date">
       img ?
@@ -10,7 +11,7 @@
     <hr>
     <div v-if="error">{{error}}</div>
     <div v-else>
-      <div v-for="move in todayMovieList" class="movie">
+      <div v-for="move in movieList" class="movie" @click="">
         {{move.title}}
         <br>
         <img :src="backendURL + move.poster" alt="">
@@ -39,28 +40,42 @@ import store from '@/store'
   props: {
     city: String
   },
-  computed: {
-    todayMovieList() {
-      return store.state.todayMovieList;
-    }
-  }
 })
 export default class BookingTickets extends Vue {
   city!: string
   currentStep: number = 1
-  apiKey: string = 'wf159ZgJerjxcbvLxghgjsH2POJ9BMGwZKvT2FtRGFKzk7aW1qdAWiWfxCep67C4'
+  apiKey: string = 'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI'
   backendURL: string = 'http://127.0.0.1/'
   error:string = ''
+  chosenDate:string = ''
+  movieList:any = []
 
   created() {
     this.makeRequest('api/v1/movies', 'get', {city_name: this.city},
         (movieList: any) =>  {
-      if (movieList.length === 0) {
-        this.error = 'There is no sessions on today and tomorrow';
-      } else {
-        store.commit('setTodayMovieList', movieList);
-      }
+          store.commit('setTodayMovieList', movieList.today);
+          store.commit('setTomorrowMovieList', movieList.tomorrow);
+
+          this.movieList = store.state.todayMovieList;
     });
+    this.chosenDate = this.dateFormatter(new Date())
+  }
+
+  getMovieInfo(movie_id: number) {
+    this.makeRequest('api/v1/movie-session', 'get', {city_name: this.city},
+        () =>  {
+
+        });
+  }
+  dateFormatter(date:Date):string {
+    return `${date.getFullYear()}-${("0" + (date.getMonth() + 1)).slice(-2)}-${date.getDate()}`;
+  }
+
+  choseTodayDate():void {
+    this.movieList = store.state.todayMovieList;
+  }
+  choseTomorrowDate():void {
+    this.movieList = store.state.tomorrowMovieList;
   }
 
   async makeRequest(url: string, method: string, data: any, callback: any) {
