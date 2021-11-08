@@ -54,12 +54,13 @@ class MovieSeeder extends Seeder
         ];
 
         foreach ($filmList as $film) {
-            $rental_start_days_ago = rand(0,45);
+            $countDaysInRental = 30;
+            $rental_start_days_ago = rand(0,40);
             $film['rental_start'] = Carbon::now()->subDays($rental_start_days_ago);
-            if ($rental_start_days_ago <= 30) {
-                $film['rental_end'] = Carbon::now()->addDays(30-$rental_start_days_ago);
+            if ($rental_start_days_ago <=  $countDaysInRental) {
+                $film['rental_end'] = Carbon::now()->addDays( $countDaysInRental-$rental_start_days_ago);
             } else {
-                $film['rental_end'] = Carbon::now()->subDays($rental_start_days_ago-30);
+                $film['rental_end'] = Carbon::now()->subDays($rental_start_days_ago- $countDaysInRental);
             }
 
             Movie::firstOrCreate($film);

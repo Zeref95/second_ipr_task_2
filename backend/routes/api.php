@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->middleware('auth.apikey')->group(function () {
     Route::get('/cities', [CityController::class, 'index']);
     Route::get('/movies', [MovieController::class, 'index']);
+    Route::get('/get-movies-by-date', [MovieController::class, 'getMoviesByDate']);
     Route::get('/movie-session', [MovieSessionController::class, 'index']);
     Route::post('/order', [OrderController::class, 'store']);
 });
