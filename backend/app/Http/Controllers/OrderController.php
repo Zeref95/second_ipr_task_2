@@ -92,7 +92,7 @@ class OrderController extends Controller
         if (!$is_test) {
             $movieSession->save();
             Ticket::create([
-                'movie_session_id' => 1,
+                'movie_session_id' => $validated['session_id'],
                 'places' => json_encode($validated['places'])
             ]);
         }
