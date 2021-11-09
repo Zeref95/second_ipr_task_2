@@ -17,7 +17,9 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $bodyContent = json_decode($request->getContent(), true);
+
+        $validator = Validator::make($bodyContent, [
             'is_test' => 'nullable|boolean',
             'session_id' => ['required','numeric','exists:App\Models\MovieSession,id',function ($attribute, $value, $fail) {
                 $movieSession = MovieSession::find($value);
@@ -27,8 +29,7 @@ class OrderController extends Controller
                     return;
                 }
             }],
-            'places' => ['required', function ($attribute, $value, $fail) {
-                $places = json_decode($value);
+            'places' => ['required', function ($attribute, $places, $fail) {
                 if (!$places || !is_array($places)) {
                     $fail('Not valid data');
                     return;
@@ -57,7 +58,7 @@ class OrderController extends Controller
         }
         $validated = $validator->validated();
 
-        $places = json_decode($validated['places']);
+        $places = $validated['places'];
         $movieSession = MovieSession::find($validated['session_id']);
         $movieSessionPlaces = collect(json_decode($movieSession->places));
         $PlacesCollection = $movieSessionPlaces->mapWithKeys(function ($item, $key) {
