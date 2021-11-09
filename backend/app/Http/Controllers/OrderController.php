@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MovieSession;
+use App\Models\Order;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -89,6 +91,10 @@ class OrderController extends Controller
 
         if (!$is_test) {
             $movieSession->save();
+            Ticket::create([
+                'movie_session_id' => 1,
+                'places' => json_encode($validated['places'])
+            ]);
         }
 
         return response()->json([
