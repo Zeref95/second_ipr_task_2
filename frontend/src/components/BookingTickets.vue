@@ -28,37 +28,71 @@
   </div>
 
   <div v-if="currentStep === 2">
-    <button @click="goBack"
-            class="button">
-      Go back
-    </button>
+    <nav>
+      <button @click="goBack"
+              class="button">
+        Go back
+      </button>
+      <button
+      class="button"
+      @click="makeOrder">
+        Order
+      </button>
+    </nav>
     <div class="move-info">
       <div class="move-info-left">
         <img :src="backendURL + selectedFilmInfo.poster" alt="">
-        <p>{{selectedFilmInfo.description}}</p>
+        <p>{{ selectedFilmInfo.description }}</p>
       </div>
       <div class="move-info-center">
         <div>
+
           <ul>
-            <li v-for="session in selectedFilmInfo.sessions">
-              {{session.time}}
+            <li
+                v-for="session in selectedFilmInfo.sessions"
+                :class="{'active': selectedFilmInfo?.chosenTime === session.time}"
+                @click="selectedFilmInfo.chosenTime = session.time"
+            >
+              {{ session.time }}
             </li>
           </ul>
         </div>
         <div>
-          <div>
+          <div class="flex-center">
+            <div class="cube cube-your-chose"></div>
             Your chose
           </div>
-          <div>
+          <div class="flex-center">
+            <div class="cube cube-available"></div>
             Available
           </div>
-          <div>
+          <div class="flex-center">
+            <div class="cube cube-unavailable"></div>
             Unavailable
           </div>
         </div>
       </div>
       <div class="move-info-right">
-        Screen
+        <div class="screen">Screen</div>
+        <div class="plates" v-if="chosenSession">
+          <div
+              v-for="place in chosenSession.places"
+             class="cube-container"
+          >
+            <div
+                @click="selectPlace(place.place)"
+                class="cube"
+                :class="{
+                  'cube-available':place.status === 'free',
+                  'cube-unavailable':place.status === 'taken',
+                  'cube-your-chose':place.status === 'your-chose'
+                }"
+            >
+              {{ place.place }}
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,6 +105,7 @@
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
 import store from '@/store'
+import { computed } from 'vue'
 
 @Options({
   props: {
@@ -84,18 +119,37 @@ import store from '@/store'
             this.movieList = movieList;
           });
     }
-  }
+  },
 })
 
 export default class BookingTickets extends Vue {
-  city!: string
-  currentStep: number = 1
-  apiKey: string = 'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI'
-  backendURL: string = 'http://127.0.0.1/'
-  movieList: any = []
-  inputDate: string = ''
+  city!: string;
+  currentStep: number = 1;
+  apiKey: string = 'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI';
+  backendURL: string = 'http://127.0.0.1/';
+  movieList: any = [];
+  inputDate: string = '';
   chosenDate: string = 'today';
   selectedFilmInfo: any = {};
+  chosenSession: any = computed(() => {
+    if (this.selectedFilmInfo.chosenTime) {
+      return this.selectedFilmInfo.sessions.find((session: any) => {
+        return session.time === this.selectedFilmInfo.chosenTime;
+      })
+    }
+  })
+  chosenPlaces: any = computed(() => {
+    if (this.chosenSession?.places) {
+      let places: any = this.chosenSession.places.filter((place: any) => {
+        return place.status === 'your-chose';
+      });
+      let placesArray: any = [];
+      places.forEach((place: any) => {
+        placesArray.push(place.place)
+      })
+      return placesArray;
+    }
+  })
 
   created() {
     this.makeRequest('api/v1/movies', 'get', {city_name: this.city},
@@ -109,12 +163,12 @@ export default class BookingTickets extends Vue {
 
   openMove(movie_id: number) {
     this.currentStep = 2;
-    let date:string = '';
+    let date: string = '';
     if (this.chosenDate === 'today') {
       date = this.dateFormatter(new Date())
     } else if (this.chosenDate === 'tomorrow') {
       let tempDate = new Date();
-      tempDate.setDate(tempDate.getDate()+1);
+      tempDate.setDate(tempDate.getDate() + 1);
       date = this.dateFormatter(tempDate)
     } else {
       date = this.inputDate;
@@ -151,6 +205,33 @@ export default class BookingTickets extends Vue {
     this.chosenDate = 'tomorrow'
   }
 
+  selectPlace(place: number): void {
+    let chosenPlace:any = this.chosenSession.places.find((placeInfo: any) => {
+      return placeInfo.place === place;
+    })
+    if (chosenPlace.status === 'free') {
+      if (this.chosenPlaces.length < 6) {
+        chosenPlace.status = 'your-chose';
+      } else {
+        alert('You cannot take more then 6 tickets')
+      }
+
+    } else if (chosenPlace.status === 'your-chose'){
+      chosenPlace.status = 'free';
+    }
+  }
+
+  makeOrder() {
+    console.log(this.chosenSession.id, this.chosenPlaces)
+    this.makeRequest('api/v1/order', 'POST', {
+          session_id: this.chosenSession.id,
+          places: this.chosenPlaces
+        },
+        (data: any) => {
+          console.log(data)
+        });
+  }
+
   async makeRequest(url: string, method: string, data: any, callback: any) {
     let urlFetch: string = this.backendURL + url;
     method = method.toUpperCase();
@@ -168,13 +249,19 @@ export default class BookingTickets extends Vue {
       }
     }
 
-    await fetch(urlFetch, {
+    let fetchObj:any = {
       method: method,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'X-Authorization': this.apiKey
       },
-    })
+    };
+    if (method === 'POST') {
+      fetchObj.body = JSON.stringify(data);
+    }
+    console.log(fetchObj)
+
+    await fetch(urlFetch, fetchObj)
         .then(res => res.json())
         .then((json) => {
           callback(json)
@@ -191,54 +278,142 @@ export default class BookingTickets extends Vue {
   background-color: #2c3e50;
   color: white;
 }
+
 .move-info {
   margin-top: 10px;
   display: flex;
+
   .move-info-left {
+    text-align: justify;
     min-width: 350px;
     max-width: 30%;
+
     img {
       width: 350px;
     }
   }
+
   .move-info-center {
     padding: 0 10px;
-    min-width: 100px;
-    max-width: 10%;
+    min-width: 150px;
+    max-width: 15%;
+
+    ul {
+      border: 1px solid black;
+      border-radius: 5px;
+      list-style: none;
+      padding: 0;
+      text-align: center;
+
+      li {
+        background-color: #85a8cb;
+        color: white;
+        margin: 2px;
+        cursor: pointer;
+      }
+
+      .active {
+        background-color: #2c3e50;
+      }
+    }
   }
+
   .move-info-right {
     min-width: 500px;
-    max-width: 60%;
+    border: 1px solid black;
+    flex-grow: 1;
+
+    .screen {
+      height: 18px;
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      width: 80%;
+      margin: 10px auto;
+    }
+
+    .plates {
+      margin: 20vh auto 0;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: 100px;
+
+    }
   }
 }
+
 .button {
   margin: 0 5px;
   width: 100px;
   font-size: 1.1em;
   border-radius: 5px;
   cursor: pointer;
+
   &:hover {
     background-color: aquamarine;
   }
 }
+
 .movie-list {
   display: flex;
   flex-wrap: wrap;
+
   .movie {
     cursor: pointer;
     width: 300px;
     display: flex;
     flex-direction: column;
+
     h3 {
       text-align: center;
     }
+
     img {
       width: 150px;
       margin: 0 auto;
     }
   }
 }
+nav {
+  display: flex;
+  justify-content: space-between;
+}
+.cube {
+  width: 40px;
+  height: 40px;
+  border-radius: 3px;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cube-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .cube-available, .cube-your-chose {
+    cursor: pointer;
+  }
+}
+.cube-your-chose {
+  border: #e7b029 3px solid;
+}
 
+.cube-available {
+  border: #227222 3px solid;
+}
 
+.cube-unavailable {
+  border: #338ffd 3px solid;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+
+  div {
+    margin: 5px;
+  }
+}
 
 </style>
