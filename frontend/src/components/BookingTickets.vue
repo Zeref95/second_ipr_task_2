@@ -12,7 +12,6 @@
           :class="{'chosen-day': chosenDate === 'tomorrow'}">
         Tomorrow
       </button>
-
       Or chose a day
       <input type="date" v-model="inputDate" :class="{'chosen-day': chosenDate === 'input'}">
     </div>
@@ -34,6 +33,7 @@
         Go back
       </button>
       <button
+          v-if="chosenPlaces.length > 0"
       class="button"
       @click="makeOrder">
         Order
@@ -72,9 +72,12 @@
           </div>
         </div>
       </div>
-      <div class="move-info-right">
+      <div class="move-info-right" v-if="chosenSession">
         <div class="screen">Screen</div>
-        <div class="plates" v-if="chosenSession">
+        <div class="alert-danger" v-if="isOldSession">
+          Session id old. You can not make order
+        </div>
+        <div v-else class="plates" v-if="chosenSession">
           <div
               v-for="place in chosenSession.places"
              class="cube-container"
@@ -148,7 +151,16 @@ export default class BookingTickets extends Vue {
         placesArray.push(place.place)
       })
       return placesArray;
+    } else {
+      return [];
     }
+  })
+
+  isOldSession: any = computed(():boolean => {
+    if (!this.chosenSession)
+      return true;
+    let sessionDate = new Date(`${this.chosenSession.date}T${this.chosenSession.time}:00`);
+    return sessionDate < new Date;
   })
 
   created() {
@@ -222,13 +234,13 @@ export default class BookingTickets extends Vue {
   }
 
   makeOrder() {
-    console.log(this.chosenSession.id, this.chosenPlaces)
     this.makeRequest('api/v1/order', 'POST', {
           session_id: this.chosenSession.id,
           places: this.chosenPlaces
         },
         (data: any) => {
-          console.log(data)
+          alert(data.message);
+          location.reload();
         });
   }
 
@@ -258,8 +270,8 @@ export default class BookingTickets extends Vue {
     };
     if (method === 'POST') {
       fetchObj.body = JSON.stringify(data);
+      fetchObj.headers['Content-Type'] = 'application/json'
     }
-    console.log(fetchObj)
 
     await fetch(urlFetch, fetchObj)
         .then(res => res.json())
@@ -267,7 +279,11 @@ export default class BookingTickets extends Vue {
           callback(json)
         })
         .catch((err) => {
-          console.error(err);
+          if (err.message) {
+            alert(err.message)
+          } else {
+            console.error(err);
+          }
         });
   }
 }
@@ -414,6 +430,13 @@ nav {
   div {
     margin: 5px;
   }
+}
+
+.alert-danger {
+  background-color: #ea8080;
+  border: 1px solid crimson;
+  font-size: 1.2em;
+  text-align: center;
 }
 
 </style>
