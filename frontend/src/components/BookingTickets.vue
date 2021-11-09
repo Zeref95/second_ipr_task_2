@@ -99,7 +99,31 @@
       </div>
     </div>
   </div>
-  <div v-if="currentStep === 3">
+  <div v-if="currentStep === 3" class="order-finish">
+    <div>
+      <img :src="backendURL + selectedFilmInfo.poster" alt="">
+    </div>
+    <div class="order-info">
+      <h2>Thanks for your order</h2>
+      <div>
+        <table>
+          <tr>
+            <td>Movie:</td>
+            <td>{{answerResponse.move_name}}</td>
+          </tr>
+          <tr>
+            <td>Date:</td>
+            <td>{{answerResponse.date_time}}</td>
+          </tr>
+          <tr>
+            <td>Seats</td>
+            <td>{{answerResponse.seats}}</td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+    <h1></h1>
 
   </div>
 
@@ -141,6 +165,7 @@ export default class BookingTickets extends Vue {
       })
     }
   })
+  inAwaiting: boolean = false;
   chosenPlaces: any = computed(() => {
     if (this.chosenSession?.places) {
       let places: any = this.chosenSession.places.filter((place: any) => {
@@ -155,6 +180,7 @@ export default class BookingTickets extends Vue {
       return [];
     }
   })
+  answerResponse: any = {};
 
   isOldSession: any = computed(():boolean => {
     if (!this.chosenSession)
@@ -241,13 +267,21 @@ export default class BookingTickets extends Vue {
   }
 
   makeOrder() {
+    if (this.inAwaiting) return;
+    this.inAwaiting = true
     this.makeRequest('api/v1/order', 'POST', {
           session_id: this.chosenSession.id,
           places: this.chosenPlaces
         },
         (data: any) => {
-          alert(data.message);
-          location.reload();
+          this.answerResponse = data;
+          if (data.error) {
+            alert('Something was wrong');
+          } else  {
+            this.currentStep = 3;
+            this.inAwaiting = false;
+          }
+
         });
   }
 
@@ -419,11 +453,11 @@ nav {
   }
 }
 .cube-your-chose {
-  border: #e7b029 3px solid;
+  border: #dbc60c 3px solid;
 }
 
 .cube-available {
-  border: #227222 3px solid;
+  border: #27d227 3px solid;
 }
 
 .cube-unavailable {
@@ -444,6 +478,31 @@ nav {
   border: 1px solid crimson;
   font-size: 1.2em;
   text-align: center;
+}
+
+.order-finish {
+  display: flex;
+  img {
+    width: 300px;
+  }
+}
+.order-info {
+  width: 100%;
+  h2 {
+    text-align: center;
+  }
+  div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    table {
+      font-size: 1.3em;
+      td {
+        padding: 0 40px;
+      }
+    }
+  }
 }
 
 </style>
