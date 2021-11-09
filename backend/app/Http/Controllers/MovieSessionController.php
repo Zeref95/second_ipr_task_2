@@ -24,10 +24,7 @@ class MovieSessionController extends Controller
             'city_name' => 'required_without:city_id|string|exists:App\Models\City,name',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => 'true',
-                'message' => $validator->getMessageBag()
-            ], 400);
+            return errorResponse($validator->getMessageBag());
         }
         $validated = $validator->validated();
 

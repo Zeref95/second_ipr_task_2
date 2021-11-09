@@ -6,9 +6,10 @@ use App\Http\Resources\MovieResource;
 use App\Models\City;
 use App\Models\Movie;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class MovieController extends Controller
 {
@@ -23,7 +24,8 @@ class MovieController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
@@ -32,10 +34,7 @@ class MovieController extends Controller
             'city_name' => 'required_without:city_id|string|exists:App\Models\City,name',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => 'true',
-                'message' => $validator->getMessageBag()
-            ], 400);
+            return errorResponse($validator->getMessageBag());
         }
         $validated = $validator->validated();
 
@@ -43,8 +42,6 @@ class MovieController extends Controller
         $moviesToday = self::getMoviesByDateFromDB($city_id, Carbon::today()->toDateString());
         $moviesTomorrow = self::getMoviesByDateFromDB($city_id, Carbon::tomorrow()->toDateString());
 
-        Log::debug(Carbon::today()->toDateString());
-        Log::debug(Carbon::tomorrow()->toDateString());
         return response()->json([
             'today' => MovieResource::collection($moviesToday),
             'tomorrow' => MovieResource::collection($moviesTomorrow)
@@ -54,7 +51,7 @@ class MovieController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getMoviesByDate(Request $request)
     {
@@ -64,10 +61,7 @@ class MovieController extends Controller
             'date' => 'date|date_format:Y-m-d',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => 'true',
-                'message' => $validator->getMessageBag()
-            ], 400);
+            return errorResponse($validator->getMessageBag());
         }
         $validated = $validator->validated();
 

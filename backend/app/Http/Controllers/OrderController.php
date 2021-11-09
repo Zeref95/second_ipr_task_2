@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Movie;
 use App\Models\MovieSession;
 use App\Models\Ticket;
 use Carbon\Carbon;
@@ -26,6 +25,9 @@ class OrderController extends Controller
             'is_test' => 'nullable|boolean',
             'session_id' => ['required','numeric','exists:App\Models\MovieSession,id',function ($attribute, $value, $fail) {
                 $movieSession = MovieSession::find($value);
+                if (!$movieSession) {
+                    return;
+                }
                 $movieSessionDate = $movieSession->date.' '. $movieSession->time;
                 if (Carbon::now() > Carbon::parse($movieSessionDate)) {
                     $fail('The selected session is no longer available');
@@ -54,10 +56,7 @@ class OrderController extends Controller
             },],
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => 'true',
-                'message' => $validator->getMessageBag()
-            ], 400);
+            return errorResponse($validator->getMessageBag());
         }
         $validated = $validator->validated();
 
@@ -70,18 +69,10 @@ class OrderController extends Controller
 
         foreach ($places as $place) {
             if (!isset($PlacesCollection[$place])) {
-                return response()->json(
-                    [
-                        "error" => "true",
-                        "message" => ["places" => "One of the selected places dose not exist on this session"]
-                    ], 400);
+                return errorResponse(["places" => "One of the selected places dose not exist on this session"]);
             }
             if ($PlacesCollection[$place] != MovieSession::FREE) {
-                return response()->json(
-                    [
-                        "error" => "true",
-                        "message" => ["places" => "One of the selected places is not free"]
-                    ], 400);
+                return errorResponse(["places" => "One of the selected places is not free"]);
             }
             $movieSessionPlaces->firstWhere('place', $place)->status = MovieSession::TAKEN;
         }
