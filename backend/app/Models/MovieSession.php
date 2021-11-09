@@ -17,4 +17,9 @@ class MovieSession extends Model
     {
         return MovieSessionFactory::new();
     }
+
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class);
+    }
 }

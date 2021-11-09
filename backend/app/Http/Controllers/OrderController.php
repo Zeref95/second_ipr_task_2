@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movie;
 use App\Models\MovieSession;
-use App\Models\Order;
 use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -88,18 +89,31 @@ class OrderController extends Controller
         $movieSession->places = $movieSessionPlaces->toJson();
 
         $is_test = isset($validated['is_test']) && $validated['is_test'] == 1;
-
         if (!$is_test) {
-            $movieSession->save();
-            Ticket::create([
-                'movie_session_id' => $validated['session_id'],
-                'places' => json_encode($validated['places'])
-            ]);
+            DB::beginTransaction();
+            try {
+                $movieSession->save();
+                Ticket::create([
+                    'movie_session_id' => $validated['session_id'],
+                    'places' => json_encode($validated['places'])
+                ]);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+            }
+        }
+
+        $seats = '';
+        foreach ($validated['places'] as $key=>$place) {
+            $seats .= $key == 0 ? $place : ', '.$place;
         }
 
         return response()->json([
             'status' => 'OK',
             'message' => 'Order successfully created'.($is_test ? ' (test order)' : ''),
-        ], 200);
+            'move_name' => $movieSession->movie->title,
+            'date_time' => $movieSession->date.' '.substr($movieSession->time, 0,5),
+            'seats' => $seats
+            ], 200);
     }
 }
