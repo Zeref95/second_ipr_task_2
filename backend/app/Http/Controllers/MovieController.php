@@ -52,6 +52,7 @@ class MovieController extends Controller
      * Display a listing of the resource.
      *
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function getMoviesByDate(Request $request)
     {

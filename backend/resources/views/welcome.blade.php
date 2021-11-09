@@ -45,11 +45,50 @@
 </div>
 
 <div class="block">
-    <h2>Get movies list</h2>
+    <h2>Get movies list on today and tomorrow</h2>
 
     <p>
         <code>
             {{config('app.url')}}/api/v1/movies?city_id=${city_id}
+        </code>
+    </p>
+    <p>
+        <code>
+            {{config('app.url')}}/api/v1/movies?city_name=${city_name}
+        </code>
+    </p>
+    <p><b>Method:</b> GET</p>
+    <p><b>Where:</b></p>
+    <ul>
+        <li><code>${city_id}</code> - Id of city, like <code>1</code></li>
+        <li><code>${city_name}</code> - You can specify the city name instead of the identifier, like <code>Taganrog</code></li>
+    </ul>
+
+    <p><b>Example: </b> <code>{{config('app.url')}}/api/v1/movies?city_name=Taganrog</code></p>
+    <b>Answer: </b>
+        <pre class="code">
+        {"today":[
+            {
+                "id":1,
+                "title":"Неисправимый Рон",
+                "description":"У любого ребенка д...",
+                "poster": "storage/posters/1.jpg"
+            },
+            ...]
+            "tomorrow": [{...}, {...}]
+    </pre>
+</div>
+
+<div class="block">
+    <h2>Get movies list on day</h2>
+
+    <p>
+        <code>
+            {{config('app.url')}}/api/v1/get-movies-by-date?city_id=${city_id}&date=${date}
+        </code>
+        or
+        <code>
+            {{config('app.url')}}/api/v1/get-movies-by-date?city_name=${city_name}&date=${date}
         </code>
     </p>
     <p>
@@ -61,25 +100,15 @@
     <p><b>Where:</b></p>
     <ul>
         <li><code>${city_id}</code> - Id of city, like <code>1</code></li>
-        <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
-
         <li><code>${city_name}</code> - You can specify the city name instead of the identifier, like <code>Taganrog</code></li>
+        <li><code>${date}</code> - Date, like <code>2021-11-19</code></li>
     </ul>
 
-    <p>
-        <b>Example: </b> <code>{{config('app.url')}}/api/v1/movies?city_id=1&date=2021-11-05</code>
-        <br>
-        <b>Answer: </b>
-            <pre class="code">
-        [{
-                "id": 7,
-                "title": "Молоко",
-                "description": "Жителей города Кировска давно не удивить...",
-                "poster": "storage/posters/7.jpg",
-        }]
-        </pre>
-
-    </p>
+    <p><b>Example: </b> <code>{{config('app.url')}}/api/v1/movies?city_name=Taganrog&date=2021-11-19</code></p>
+    <b>Answer: </b>
+    <pre class="code">
+        [{"id":1,"title":...},{...},...]
+    </pre>
 </div>
 
 <div class="block">
@@ -87,7 +116,7 @@
 
     <p>
         <code>
-            {{config('app.url')}}/api/v1/movie-session?movie_id=&{move_id}&date=${date}
+            {{config('app.url')}}/api/v1/movie-session?movie_id=&{move_id}&date=${date}&city_name=${city_name}
         </code>
     </p>
     <p><b>Method:</b> GET</p>
@@ -95,10 +124,13 @@
     <ul>
         <li><code>${movie_id}</code> - Move ID, like <code>5</code></li>
         <li><code>${date}</code> - Date, like <code>2021-11-05</code></li>
+        <li><code>${city_id}</code> - Id of city, like <code>1</code></li>
+        <li><code>${city_name}</code> - You can specify the city name instead of the identifier, like <code>Taganrog</code></li>
     </ul>
 
     <p>
-        <b>Example: </b> <code>{{config('app.url')}}/api/v1/movie-session?movie_id=7&date=2021-11-05</code>
+        <b>Example: </b> <code>{{config('app.url')}}/api/v1/movie-session?movie_id=7&date=2021-11-05&city_name=Taganrog</code>
+    </p>
         <br>
         <b>Answer: </b>
     <pre class="code">
@@ -122,8 +154,6 @@
             ]
         }]
         </pre>
-
-    </p>
 </div>
 
 <div class="block">
@@ -135,14 +165,17 @@
         </code>
     </p>
     <p><b>Method:</b> POST</p>
-    <p><b>Where:</b></p>
+    <p><b>JSON body:</b></p>
     <ul>
         <li><code>session_id</code> - Session ID, like <code>5</code></li>
         <li><code>places</code> - Chosen places, like <code>[1,2,3,4,5]</code></li>
         <li><code>is_test</code> - Not required, boolean, like <code>1</code></li>
     </ul>
 
-    <p><b>Answer: </b> <code>{"status":"OK","message":"Order successfully created"}</code></p>
+    <b>Example:</b> <code>{"session_id":325,"places":[2,3,4]}</code>
+
+    <p><b>Answer: </b>
+        <code>{"status":"OK","message":"Order successfully created (test order)","move_name":"Бездна 2","date_time":"2021-11-10 09:30","seats":"2, 3, 4"}</code></p>
 </div>
 </body>
 </html>

@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MovieSessionResource;
 use App\Models\City;
 use App\Models\MovieSession;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class MovieSessionController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function index(Request $request)
     {
