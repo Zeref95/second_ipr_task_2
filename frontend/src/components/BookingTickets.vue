@@ -185,14 +185,21 @@ export default class BookingTickets extends Vue {
     } else {
       date = this.inputDate;
     }
+    let key = `${movie_id}/${date}`
 
     this.selectedFilmInfo = this.movieList.find((move: any) => {
       return move.id === movie_id;
     })
+
+    if (store.state.sessionList[key]) {
+      this.selectedFilmInfo.sessions = store.state.sessionList[key];
+      return;
+    }
     this.makeRequest('api/v1/movie-session', 'get',
         {movie_id: movie_id, date: date, city_name: this.city},
         (moveInfo: any) => {
-          this.selectedFilmInfo.sessions = moveInfo
+          store.commit('PushToMovieSessionList', {key: key, data: moveInfo});
+          this.selectedFilmInfo.sessions = store.state.sessionList[key];
         });
   }
 
