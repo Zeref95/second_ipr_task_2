@@ -2,18 +2,18 @@
   <div v-if="currentStep === 1">
     <div>
       <button @click="choseTodayDate"
-              class="button"
+              class="input"
               :class="{'chosen-day': chosenDate === 'today'}">
         Today
       </button>
       <button
           @click="choseTomorrowDate"
-          class="button"
+          class="input"
           :class="{'chosen-day': chosenDate === 'tomorrow'}">
         Tomorrow
       </button>
-      Or chose a day
-      <input type="date" v-model="inputDate" :class="{'chosen-day': chosenDate === 'input'}">
+      <b>Or chose a day: </b>
+      <input class="input" type="date" v-model="inputDate" :class="{'chosen-day': chosenDate === 'input'}">
     </div>
     <hr>
     <div v-if="movieList.length === 0">Sorry, there is no session on this day</div>
@@ -29,12 +29,12 @@
   <div v-if="currentStep === 2">
     <nav>
       <button @click="goBack"
-              class="button">
+              class="input">
         Go back
       </button>
       <button
           v-if="chosenPlaces.length > 0"
-      class="button"
+      class="input"
       @click="makeOrder">
         Order
       </button>
@@ -123,8 +123,6 @@
       </div>
 
     </div>
-    <h1></h1>
-
   </div>
 
 </template>
@@ -133,6 +131,33 @@
 import {Options, Vue} from 'vue-class-component';
 import store from '@/store'
 import { computed } from 'vue'
+
+export interface MovieInterface {
+  id: number,
+  description: string,
+  poster: string ,
+  title: string
+}
+export interface AnswerResponseInterface {
+  date_time?: string,
+  message?: string,
+  move_name?: string,
+  seats?: string,
+  status?: string
+}
+export interface PlaceInterface {
+  row: number,
+  place: number,
+  status: string ,
+}
+export interface SessionsInterface {
+  city_id: number,
+  id: number,
+  date: string ,
+  movie_id: number,
+  time: string,
+  places: PlaceInterface[]
+}
 
 @Options({
   props: {
@@ -154,13 +179,13 @@ export default class BookingTickets extends Vue {
   currentStep: number = 1;
   apiKey: string = 'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI';
   backendURL: string = 'http://127.0.0.1/';
-  movieList: any = [];
+  movieList: MovieInterface[] = [];
   inputDate: string = '';
   chosenDate: string = 'today';
   selectedFilmInfo: any = {};
   chosenSession: any = computed(() => {
-    if (this.selectedFilmInfo.chosenTime) {
-      return this.selectedFilmInfo.sessions.find((session: any) => {
+    if (this.selectedFilmInfo.chosenTime && this.selectedFilmInfo.sessions) {
+      return this.selectedFilmInfo.sessions.find((session: SessionsInterface) => {
         return session.time === this.selectedFilmInfo.chosenTime;
       })
     }
@@ -168,11 +193,11 @@ export default class BookingTickets extends Vue {
   inAwaiting: boolean = false;
   chosenPlaces: any = computed(() => {
     if (this.chosenSession?.places) {
-      let places: any = this.chosenSession.places.filter((place: any) => {
+      let places: PlaceInterface[] = this.chosenSession.places.filter((place: PlaceInterface) => {
         return place.status === 'your-chose';
       });
-      let placesArray: any = [];
-      places.forEach((place: any) => {
+      let placesArray: number[] = [];
+      places.forEach((place: PlaceInterface) => {
         placesArray.push(place.place)
       })
       return placesArray;
@@ -180,7 +205,7 @@ export default class BookingTickets extends Vue {
       return [];
     }
   })
-  answerResponse: any = {};
+  answerResponse: AnswerResponseInterface = {};
 
   isOldSession: any = computed(():boolean => {
     if (!this.chosenSession)
@@ -191,7 +216,7 @@ export default class BookingTickets extends Vue {
 
   created() {
     this.makeRequest('api/v1/movies', 'get', {city_name: this.city},
-        (movieList: any) => {
+        (movieList: {today: MovieInterface[], tomorrow: MovieInterface[]} ) => {
           store.commit('setTodayMovieList', movieList.today);
           store.commit('setTomorrowMovieList', movieList.tomorrow);
 
@@ -205,15 +230,15 @@ export default class BookingTickets extends Vue {
     if (this.chosenDate === 'today') {
       date = this.dateFormatter(new Date())
     } else if (this.chosenDate === 'tomorrow') {
-      let tempDate = new Date();
+      let tempDate: Date = new Date();
       tempDate.setDate(tempDate.getDate() + 1);
       date = this.dateFormatter(tempDate)
     } else {
       date = this.inputDate;
     }
-    let key = `${movie_id}/${date}`
+    let key: string = `${movie_id}/${date}`
 
-    this.selectedFilmInfo = this.movieList.find((move: any) => {
+    this.selectedFilmInfo = this.movieList.find((move: MovieInterface) => {
       return move.id === movie_id;
     })
 
@@ -223,7 +248,7 @@ export default class BookingTickets extends Vue {
     }
     this.makeRequest('api/v1/movie-session', 'get',
         {movie_id: movie_id, date: date, city_name: this.city},
-        (moveInfo: any) => {
+        (moveInfo: MovieInterface) => {
           store.commit('PushToMovieSessionList', {key: key, data: moveInfo});
           this.selectedFilmInfo.sessions = store.state.sessionList[key];
         });
@@ -238,7 +263,7 @@ export default class BookingTickets extends Vue {
     this.chosenDate = 'today'
   }
 
-  goBack() {
+  goBack():void {
     if (this.currentStep === 2) {
       this.selectedFilmInfo = {};
       this.currentStep = 1;
@@ -251,7 +276,7 @@ export default class BookingTickets extends Vue {
   }
 
   selectPlace(place: number): void {
-    let chosenPlace:any = this.chosenSession.places.find((placeInfo: any) => {
+    let chosenPlace:PlaceInterface = this.chosenSession.places.find((placeInfo: PlaceInterface) => {
       return placeInfo.place === place;
     })
     if (chosenPlace.status === 'free') {
@@ -267,7 +292,8 @@ export default class BookingTickets extends Vue {
   }
 
   makeOrder() {
-    if (this.inAwaiting) return;
+    if (this.inAwaiting)
+      return;
     this.inAwaiting = true
     this.makeRequest('api/v1/order', 'POST', {
           session_id: this.chosenSession.id,
@@ -281,11 +307,10 @@ export default class BookingTickets extends Vue {
             this.currentStep = 3;
             this.inAwaiting = false;
           }
-
         });
   }
 
-  async makeRequest(url: string, method: string, data: any, callback: any) {
+  async makeRequest(url: string, method: string, data: any, callback: (date:any) => void) {
     let urlFetch: string = this.backendURL + url;
     method = method.toUpperCase();
     if (method === 'GET') {
@@ -302,7 +327,7 @@ export default class BookingTickets extends Vue {
       }
     }
 
-    let fetchObj:any = {
+    let fetchObj: {method: string, headers: any, body?:string } = {
       method: method,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -316,10 +341,10 @@ export default class BookingTickets extends Vue {
 
     await fetch(urlFetch, fetchObj)
         .then(res => res.json())
-        .then((json) => {
+        .then((json: string) => {
           callback(json)
         })
-        .catch((err) => {
+        .catch((err: {message: string}) => {
           if (err.message) {
             alert(err.message)
           } else {
@@ -328,6 +353,8 @@ export default class BookingTickets extends Vue {
         });
   }
 }
+
+
 </script>
 
 <style scoped lang="scss">
@@ -339,36 +366,30 @@ export default class BookingTickets extends Vue {
 .move-info {
   margin-top: 10px;
   display: flex;
-
   .move-info-left {
     text-align: justify;
     min-width: 350px;
     max-width: 30%;
-
     img {
       width: 350px;
     }
   }
-
   .move-info-center {
     padding: 0 10px;
     min-width: 150px;
     max-width: 15%;
-
     ul {
       border: 1px solid black;
       border-radius: 5px;
       list-style: none;
       padding: 0;
       text-align: center;
-
       li {
         background-color: #85a8cb;
         color: white;
         margin: 2px;
         cursor: pointer;
       }
-
       .active {
         background-color: #2c3e50;
       }
@@ -379,7 +400,6 @@ export default class BookingTickets extends Vue {
     min-width: 500px;
     border: 1px solid black;
     flex-grow: 1;
-
     .screen {
       height: 18px;
       background-color: #2c3e50;
@@ -388,7 +408,6 @@ export default class BookingTickets extends Vue {
       width: 80%;
       margin: 10px auto;
     }
-
     .plates {
       margin: 20vh auto 0;
       display: grid;
@@ -399,13 +418,12 @@ export default class BookingTickets extends Vue {
   }
 }
 
-.button {
+.input {
   margin: 0 5px;
-  width: 100px;
+  width: 150px;
   font-size: 1.1em;
   border-radius: 5px;
   cursor: pointer;
-
   &:hover {
     background-color: aquamarine;
   }
@@ -414,27 +432,26 @@ export default class BookingTickets extends Vue {
 .movie-list {
   display: flex;
   flex-wrap: wrap;
-
   .movie {
     cursor: pointer;
     width: 300px;
     display: flex;
     flex-direction: column;
-
     h3 {
       text-align: center;
     }
-
     img {
       width: 150px;
       margin: 0 auto;
     }
   }
 }
+
 nav {
   display: flex;
   justify-content: space-between;
 }
+
 .cube {
   width: 40px;
   height: 40px;
@@ -444,6 +461,7 @@ nav {
   align-items: center;
   justify-content: center;
 }
+
 .cube-container {
   display: flex;
   align-items: center;
@@ -452,6 +470,7 @@ nav {
     cursor: pointer;
   }
 }
+
 .cube-your-chose {
   border: #dbc60c 3px solid;
 }
@@ -467,7 +486,6 @@ nav {
 .flex-center {
   display: flex;
   align-items: center;
-
   div {
     margin: 5px;
   }
