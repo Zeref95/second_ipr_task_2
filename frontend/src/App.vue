@@ -1,5 +1,9 @@
 <template>
-  <BookingTickets city="Taganrog"></BookingTickets>
+  <BookingTickets
+      :city="$options.city"
+      :apiKey="$options.apiKey"
+      :backendURL="$options.backendURL"
+  ></BookingTickets>
 </template>
 
 <script lang="ts">
@@ -8,6 +12,9 @@ import BookingTickets from './components/BookingTickets.vue';
 
 
 @Options({
+  city: "Taganrog",
+  apiKey:  'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI',
+  backendURL:  'http://127.0.0.1/',
   components: {
     BookingTickets
   },

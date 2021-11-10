@@ -93,35 +93,36 @@
             >
               {{ place.place }}
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div v-if="currentStep === 3" class="order-finish">
-    <div>
-      <img :src="backendURL + selectedFilmInfo.poster" alt="">
-    </div>
-    <div class="order-info">
-      <h2>Thanks for your order</h2>
+  <div v-if="currentStep === 3">
+    <div class="order-finish">
       <div>
-        <table>
-          <tr>
-            <td>Movie:</td>
-            <td>{{answerResponse.move_name}}</td>
-          </tr>
-          <tr>
-            <td>Date:</td>
-            <td>{{answerResponse.date_time}}</td>
-          </tr>
-          <tr>
-            <td>Seats</td>
-            <td>{{answerResponse.seats}}</td>
-          </tr>
-        </table>
+        <img :src="backendURL + selectedFilmInfo.poster" alt="">
       </div>
+      <div class="order-info">
+        <h2>Thanks for your order</h2>
+        <div>
+          <table>
+            <tr>
+              <td>Movie:</td>
+              <td>{{answerResponse.move_name}}</td>
+            </tr>
+            <tr>
+              <td>Date:</td>
+              <td>{{answerResponse.date_time}}</td>
+            </tr>
+            <tr>
+              <td>Seats</td>
+              <td>{{answerResponse.seats}}</td>
+            </tr>
+          </table>
+        </div>
 
+      </div>
     </div>
   </div>
 
@@ -161,7 +162,9 @@ export interface SessionsInterface {
 
 @Options({
   props: {
-    city: String
+    city: String,
+    apiKey: String,
+    backendURL: String
   },
   watch: {
     inputDate(val: string) {
@@ -176,9 +179,9 @@ export interface SessionsInterface {
 
 export default class BookingTickets extends Vue {
   city!: string;
+  apiKey!: string;
+  backendURL!: string;
   currentStep: number = 1;
-  apiKey: string = 'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI';
-  backendURL: string = 'http://127.0.0.1/';
   movieList: MovieInterface[] = [];
   inputDate: string = '';
   chosenDate: string = 'today';
