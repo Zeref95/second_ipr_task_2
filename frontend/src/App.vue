@@ -12,12 +12,12 @@ import BookingTickets from './components/BookingTickets.vue';
 
 
 @Options({
-  city: "Taganrog",
-  apiKey:  'YiL2x3O3CETQzgICNnIFkcgHyfuzVPPTV4Msrg2vOAV6Fd2WBwk9KBRVHw7h5yyI',
-  backendURL:  'http://127.0.0.1/',
+  city: process.env.VUE_APP_CITY,
+  apiKey:  process.env.VUE_APP_API_KEY,
+  backendURL:  process.env.VUE_APP_BACKEND_URL,
   components: {
     BookingTickets
-  },
+  }
 })
 export default class App extends Vue {}
 </script>
