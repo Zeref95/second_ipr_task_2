@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MovieSession;
 use App\Models\Ticket;
+use App\Rules\IsPlacesArray;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,26 +38,7 @@ class OrderController extends Controller
                     return;
                 }
             }],
-            'places' => ['required', function ($attribute, $places, $fail) {
-                if (!$places || !is_array($places)) {
-                    $fail('Not valid data');
-                    return;
-                }
-                if (count($places) > 6 || count($places) <= 0) {
-                    $fail('You can order 1 - 6 places for one time');
-                    return;
-                }
-                foreach ($places as $key=>$place) {
-                    if (!is_int($place) || $place < 0) {
-                        $fail('Not valid data');
-                        return;
-                    }
-                }
-                if (count($places) != count(array_unique($places))) {
-                    $fail('Duplicate values are specified in the order');
-                    return;
-                }
-            },],
+            'places' => ['required', 'array', new IsPlacesArray()],
         ]);
         if ($validator->fails()) {
             return errorResponse($validator->getMessageBag());
