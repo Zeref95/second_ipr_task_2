@@ -300,7 +300,8 @@ export default class BookingTickets extends Vue {
     this.inAwaiting = true
     this.makeRequest('api/v1/order', 'POST', {
           session_id: this.chosenSession.id,
-          places: this.chosenPlaces
+          places: this.chosenPlaces,
+          is_test: process.env.VUE_APP_IS_TEST
         },
         (data: any) => {
           this.answerResponse = data;

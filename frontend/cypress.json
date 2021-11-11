@@ -1,3 +1,8 @@
 {
-  "pluginsFile": "tests/e2e/plugins/index.js"
+  "pluginsFile": "tests/e2e/plugins/index.js",
+  "env": {
+    "city": "Taganrog",
+    "api_key": "",
+    "backend_url": "http://127.0.0.1/"
+  }
 }
