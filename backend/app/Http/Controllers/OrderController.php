@@ -23,8 +23,11 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $bodyContent = json_decode($request->getContent(), true);
 
+        $bodyContent = json_decode($request->getContent(), true);
+        if (!$bodyContent) {
+            return errorResponse($request->getContent());
+        }
         $validator = Validator::make($bodyContent, [
             'is_test' => 'nullable|boolean',
             'session_id' => ['required','numeric','exists:App\Models\MovieSession,id',function ($attribute, $value, $fail) {
