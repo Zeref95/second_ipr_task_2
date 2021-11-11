@@ -23,7 +23,6 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-
         $bodyContent = json_decode($request->getContent(), true);
         if (!$bodyContent) {
             return errorResponse($request->getContent());

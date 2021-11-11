@@ -1,24 +1,33 @@
-# frontend2
-
-## Project setup
 ```
-npm install
+npm i
+cp .env.example .env.local
 ```
-
-### Compiles and hot-reloads for development
+Далее необходимо заполнить .env
+Город, возможные города: Rostov, Taganrog, Moscow
+```
+VUE_APP_CITY=Taganrog
+```
+Ключ, который мы сгенерировали на backend
+```
+VUE_APP_API_KEY=YiL2x3O3CETQtHisISnOtVaLiDKeYsrg2vOAKBRVHw7h5yyI
+```
+Адрес нашего backend (обратите внимания, на конце должен быть /)
+```
+VUE_APP_BACKEND_URL=http://127.0.0.1/
+```
+Режим тестирования, где 1 - заказы не будут созданы (тест), 0 - заказы будут созданы
+```
+VUE_APP_IS_TEST=1
+```
+Для запуска локального сервера используйте команду
 ```
 npm run serve
 ```
-
-### Compiles and minifies for production
+Для запуска тестирования
+```
+npm run test
+```
+Если необходимо собрать проект
 ```
 npm run build
 ```
-
-### Run your end-to-end tests
-```
-npm run test:e2e
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
