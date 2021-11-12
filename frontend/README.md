@@ -4,6 +4,7 @@ npm i
 cp .env.example .env.local
 ```
 Далее необходимо заполнить .env
+
 Город, возможные города: Rostov, Taganrog, Moscow
 ```
 VUE_APP_CITY=Taganrog
