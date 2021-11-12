@@ -1,5 +1,5 @@
 <template>
-  <div v-if="currentStep === 1">
+  <div v-if="currentStep === 1" class="app">
     <div>
       <button @click="choseTodayDate"
               class="input"
@@ -25,8 +25,7 @@
 
     </div>
   </div>
-
-  <div v-if="currentStep === 2">
+  <div v-if="currentStep === 2" class="app">
     <nav>
       <button @click="goBack"
               class="input">
@@ -98,7 +97,7 @@
       </div>
     </div>
   </div>
-  <div v-if="currentStep === 3">
+  <div v-if="currentStep === 3" class="app">
     <div class="order-finish">
       <div>
         <img :src="backendURL + selectedFilmInfo.poster" alt="">
@@ -362,6 +361,12 @@ export default class BookingTickets extends Vue {
 </script>
 
 <style scoped lang="scss">
+.app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
 .chosen-day {
   background-color: #2c3e50;
   color: white;
